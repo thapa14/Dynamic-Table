@@ -1,10 +1,9 @@
 import {useEffect, useState} from "react";
 import {
-    Autocomplete,
-    Box,
     Button,
     Card,
     Container,
+    IconButton, MenuItem, Popover,
     Stack,
     Table,
     TableBody,
@@ -12,7 +11,9 @@ import {
     TableContainer,
     TablePagination,
     TableRow,
-    TextField, Typography
+    TextField,
+    Typography,
+    Checkbox
 } from "@mui/material";
 import TableHeadCustom from "./Table/TableHeadCustom";
 import useTable from "../hooks/useTable";
@@ -22,18 +23,19 @@ import {DragDropContext, Droppable} from "react-beautiful-dnd";
 import {useDispatch, useSelector} from "react-redux";
 import TableDataActions from "../redux/actions/TableDataActions";
 import ColumnConfigurationDialog from "./ColumnConfigurationDialog";
+import {Close, TableView, ViewColumn} from "@mui/icons-material";
 
 export default function DynamicTable() {
     const dispatch = useDispatch()
     const allColumns = useSelector((state) => state.tableViewReducer.allColumns);
     const tableData = useSelector((state) => state.tableViewReducer.tableData);
     const tableViews = useSelector((state) => state.tableViewReducer.tableViews);
-    const derivedTableViews = [{name: "Default", columns: [...allColumns]}, ...tableViews]
-    // const [view, setView] = useState({label: "Default", value: [...allColumns]})
-    const [view, setView] = useState("Default")
+    const derivedTableViews = [{name: "All", columns: [...allColumns]}, ...tableViews]
+    const [view, setView] = useState("All")
     const [openModal, setOpenModal] = useState(false);
     const [filterValue, setFilterValue] = useState("");
     const [columns, setColumns] = useState(derivedTableViews[0]?.columns);
+    const [openMenu, setOpenMenu] = useState(null)
 
 
     useEffect(() => {
@@ -56,50 +58,95 @@ export default function DynamicTable() {
         filterValue
     })
 
-    const columnConfiguratonModalHandler = () => {
+    const configurationHandler = () => {
         setOpenModal(true)
     }
     const handleClose = () => {
         setOpenModal(false)
     }
 
-    const handleTableView = (e, newValue) => {
-        setView(newValue);
-        setColumns(newValue?.value)
+    const handleTableView = (data) => {
+        setView(data?.name);
+        setColumns(data?.columns)
+    }
+
+    const handleOpenMenu = (e) => {
+        setOpenMenu(e.currentTarget)
+    }
+
+    const handleCloseMenu = () => {
+        setOpenMenu(null)
+    }
+
+    const handleColumnVisiblity = (col) => {
+        setView(null)
+        setColumns((prev) => {
+            const copy = Array.from(prev);
+            const selectedColumnIndex = prev.findIndex((val) => val.value === col.value);
+            if (selectedColumnIndex >= 0) {
+                copy.splice(selectedColumnIndex, 1);
+            } else {
+                copy?.push((col))
+            }
+            return copy
+        })
     }
 
     return <Container maxWidth='md'>
         <Card sx={{my: 6, py: 4}}>
-            <Stack direction="row" spacing={2} sx={{mb: 2}}>
+            <Stack direction="row" spacing={2} sx={{mb: 2}} alignItems="center">
                 <Typography variant="subtitle1">Views:- </Typography>
                 {derivedTableViews?.map((tableView, index) => (
                     <Button key={index} size="small"
-                            onClick={() => {
-                                setView(tableView?.name);
-                                setColumns(tableView?.columns)
-                            }}
+                            onClick={() => handleTableView(tableView)}
                             variant={tableView?.name === view ? 'contained' : 'outlined'}>{tableView?.name}</Button>
                 ))}
-                <Button variant="outlined" onClick={columnConfiguratonModalHandler}>Configuration</Button>
+                <IconButton color="secondary" aria-label="table configuration"
+                            onClick={configurationHandler}><TableView/></IconButton>
+                <IconButton
+                    id="basic-button"
+                    aria-controls={openMenu ? 'basic-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={openMenu ? 'true' : undefined} onClick={handleOpenMenu}>
+                    <ViewColumn/>
+                </IconButton>
+                <Popover
+                    open={Boolean(openMenu)}
+                    anchorEl={openMenu}
+                    onClose={handleCloseMenu}
+                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                    transformOrigin={{vertical: 'top', horizontal: 'center'}}
+                    PaperProps={{
+                        sx: {
+                            p: 1,
+                            width: 'auto',
+                            overflow: 'inherit',
+                            '& .MuiMenuItem-root': {
+                                px: 1,
+                                typography: 'body2',
+                                borderRadius: 0.75,
+                                '& svg': {mr: 2, width: 20, height: 20, flexShrink: 0},
+                            },
+                        },
+                    }}
+                >
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                        <Typography variant="body1">Show Columns</Typography>
+                        <IconButton onClick={handleCloseMenu}>
+                            <Close/>
+                        </IconButton>
+                    </Stack>
+                    {allColumns?.map((column, index) => (
+                        <MenuItem key={index} onClick={() => handleColumnVisiblity(column)}>
+                            <Checkbox inputProps={{'aria-label': column.label}} checked={columns.find(col => col.value === column.value)}/> {column?.label}
+                        </MenuItem>))}
+                </Popover>
+
             </Stack>
-            <Box display="grid"
-                 gridTemplateColumns={{
-                     xs: "repeat(1, 1fr)",
-                     md: "repeat(2, 1fr)"
-                 }}
-                 gap={2}
-            >
-                {/* <Autocomplete
-                    options={derivedTableViews?.map((view) => ({label: view?.name, value: view?.columns}))}
-                    renderInput={(props) => <TextField {...props} label="Views"/>}
-                    value={view}
-                    onChange={handleTableView}
-                /> */}
+            <Stack>
                 <TextField fullWidth label="search" value={filterValue}
                            onChange={(e) => setFilterValue(e.target.value)}/>
-
-
-            </Box>
+            </Stack>
             <DragDropContext
                 onDragEnd={(result) => {
                     if (!result.destination) return;
@@ -149,7 +196,9 @@ export default function DynamicTable() {
             </DragDropContext>
         </Card>
 
-        {openModal && <ColumnConfigurationDialog open={openModal} handleClose={handleClose}/>}
+        {
+            openModal && <ColumnConfigurationDialog open={openModal} handleClose={handleClose}/>
+        }
     </Container>
 }
 
