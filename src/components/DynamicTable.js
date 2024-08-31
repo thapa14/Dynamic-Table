@@ -13,7 +13,7 @@ import {
     TableRow,
     TextField,
     Typography,
-    Checkbox
+    Checkbox, Paper
 } from "@mui/material";
 import TableHeadCustom from "./Table/TableHeadCustom";
 import useTable from "../hooks/useTable";
@@ -93,7 +93,7 @@ export default function DynamicTable() {
     }
 
     return <Container maxWidth='md'>
-        <Card sx={{my: 6, py: 4}}>
+        <Paper sx={{my: 6, p: 2}}>
             <Stack direction="row" spacing={2} sx={{mb: 2}} alignItems="center">
                 <Typography variant="subtitle1">Views:- </Typography>
                 {derivedTableViews?.map((tableView, index) => (
@@ -138,10 +138,10 @@ export default function DynamicTable() {
                     </Stack>
                     {allColumns?.map((column, index) => (
                         <MenuItem key={index} onClick={() => handleColumnVisiblity(column)}>
-                            <Checkbox inputProps={{'aria-label': column.label}} checked={columns.find(col => col.value === column.value)}/> {column?.label}
+                            <Checkbox inputProps={{'aria-label': column.label}}
+                                      checked={columns.find(col => col.value === column.value)}/> {column?.label}
                         </MenuItem>))}
                 </Popover>
-
             </Stack>
             <Stack>
                 <TextField fullWidth label="search" value={filterValue}
@@ -194,7 +194,7 @@ export default function DynamicTable() {
                     onRowsPerPageChange={onChangeRowsPerPage}
                 />
             </DragDropContext>
-        </Card>
+        </Paper>
 
         {
             openModal && <ColumnConfigurationDialog open={openModal} handleClose={handleClose}/>
