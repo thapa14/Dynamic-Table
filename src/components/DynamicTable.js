@@ -1,13 +1,11 @@
 import {useEffect, useState} from "react";
 import {
     Card,
-    CardHeader,
     Checkbox,
     Container,
     Grid,
     IconButton,
     MenuItem,
-    Paper,
     Popover,
     Stack,
     styled,
