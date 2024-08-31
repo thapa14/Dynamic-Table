@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.js": "/Dynamic-Table/static/js/main.462fedb8.js",
+    "static/js/453.d29f8dd1.chunk.js": "/Dynamic-Table/static/js/453.d29f8dd1.chunk.js",
+    "index.html": "/Dynamic-Table/index.html",
+    "main.462fedb8.js.map": "/Dynamic-Table/static/js/main.462fedb8.js.map",
+    "453.d29f8dd1.chunk.js.map": "/Dynamic-Table/static/js/453.d29f8dd1.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.462fedb8.js"
+  ]
+}
