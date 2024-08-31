@@ -8,7 +8,6 @@ const initialState = {
         {value: 'email', label: 'email'},
         {value: 'phone', label: 'Phone'},
         {value: 'website', label: 'Website'},
-        // {id: 'message', label: 'Message', align: 'center'},
     ],
     allColumnsLoading: false,
     tableData: [],

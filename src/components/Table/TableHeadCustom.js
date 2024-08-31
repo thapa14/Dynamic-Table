@@ -1,4 +1,4 @@
-import {Box, Checkbox, TableCell, TableHead, TableRow, TableSortLabel} from "@mui/material";
+import {Box, Checkbox, styled, TableCell, tableCellClasses, TableHead, TableRow, TableSortLabel} from "@mui/material";
 import {Draggable} from "react-beautiful-dnd";
 
 const visuallyHidden = {
@@ -13,7 +13,26 @@ const visuallyHidden = {
     clip: 'rect(0 0 0 0)',
 };
 
-// ----------------------------------------------------------------------
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+        fontWeight: 600,
+        backgroundColor: theme.palette.primary.action,
+        color: theme.palette.common.black,
+    },
+    [`&.${tableCellClasses.body}`]: {
+        fontSize: 14,
+    },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+        border: 0,
+    },
+}));
 
 export default function TableHeadCustom({
                                             order,
@@ -24,11 +43,11 @@ export default function TableHeadCustom({
                                         }) {
     return (
         <TableHead sx={sx}>
-            <TableRow>
+            <StyledTableRow>
                 {headLabel?.map((headCell, index) => (
                     <Draggable key={headCell.value} draggableId={headCell.value} index={index}>
                         {(provided) => (
-                            <TableCell
+                            <StyledTableCell
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
@@ -47,7 +66,8 @@ export default function TableHeadCustom({
                                         active={orderBy === headCell.value}
                                         direction={orderBy === headCell.value ? order : 'asc'}
                                         onClick={() => onSort(headCell.value)}
-                                        sx={{textTransform: 'capitalize'}}
+                                        sx={{textTransform: 'capitalize',}}
+
                                     >
                                         {headCell.label}
 
@@ -60,11 +80,11 @@ export default function TableHeadCustom({
                                 ) : (
                                     headCell.label
                                 )}
-                            </TableCell>
+                            </StyledTableCell>
                         )}
                     </Draggable>
                 ))}
-            </TableRow>
+            </StyledTableRow>
         </TableHead>
     );
 }

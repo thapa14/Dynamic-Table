@@ -16,6 +16,7 @@ import {CheckBox, CheckBoxOutlineBlank, Close, Delete, Edit} from "@mui/icons-ma
 import {useDispatch, useSelector} from "react-redux";
 import {useState} from "react";
 import {setTableViews} from "../redux/slices/TableViewSlice";
+import {enqueueSnackbar} from "notistack";
 
 const icon = <CheckBoxOutlineBlank fontSize="small"/>;
 const checkedIcon = <CheckBox fontSize="small"/>;
@@ -47,12 +48,21 @@ export default function ColumnConfigurationDialog({handleClose, open}) {
             const dataForView = {name: tableName, columns: selectedColumns};
             if (editableIndex != null) {
                 dispatch(setTableViews(tableViews?.with(editableIndex, dataForView)))
+                enqueueSnackbar("Table view updated.", {variant: "success"})
             } else {
                 const selectedIndex = tableViews?.findIndex((list) => list.name === tableName)
                 if (selectedIndex >= 0) {
                     dispatch(setTableViews(tableViews?.with(selectedIndex, dataForView)))
+                    enqueueSnackbar("Table view updated.", {
+                        variant: "success",
+                        anchorOrigin: {horizontal: "right", vertical: "top"}
+                    })
                 } else {
                     dispatch(setTableViews([...tableViews, dataForView]))
+                    enqueueSnackbar("Table view added.", {
+                        variant: "success",
+                        anchorOrigin: {horizontal: "right", vertical: "top"}
+                    })
                 }
             }
         }
@@ -64,6 +74,7 @@ export default function ColumnConfigurationDialog({handleClose, open}) {
         const deletableIndex = copyList?.findIndex((list) => list.name === tableName)
         copyList?.splice(deletableIndex, 1);
         dispatch(setTableViews(copyList))
+        enqueueSnackbar("View deleted", {variant: "success", anchorOrigin: {horizontal: "right", vertical: "top"}})
     }
     const handleEdit = (index) => {
         setTableName(tableViews[index]?.name)
@@ -78,12 +89,14 @@ export default function ColumnConfigurationDialog({handleClose, open}) {
     }
 
     return <Dialog onClose={handleClose} open={open} fullWidth maxWidth="lg" sx={{p: 2}}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{p: 3}}>
-            <Typography>Column Configurations</Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center"
+               sx={{px: 2, py: 1, backgroundColor: "#5ecfc994"}}>
+            <Typography variant="h6">Column Configurations</Typography>
             <IconButton onClick={handleClose}><Close/></IconButton>
         </Stack>
-        <Grid container spacing={2} sx={{p: 3}}>
-            <Grid item xs={12} md={6} sx={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
+        <Grid container spacing={2} sx={{p: 3, pt: 1}}>
+            <Grid item xs={12} md={6} sx={{display: "flex", flexDirection: "column"}}>
+                <Typography variant="subtitle1" textAlign="center" sx={{mb: 1}}>Create Table View</Typography>
                 <Box display="grid"
                      gap={2}
                      gridTemplateColumns={{
@@ -148,8 +161,9 @@ export default function ColumnConfigurationDialog({handleClose, open}) {
                 }
             </Grid>
             <Grid item xs={12} md={6}>
-                <Stack gap={2}>
-                    {tableViews?.map((view, index) => <Card key={view?.name} sx={{p: 2}}>
+                <Typography variant="subtitle1" textAlign="center">All Table Views</Typography>
+                <Stack gap={2} sx={{overflow: 'hidden',}}>
+                    {tableViews?.map((view, index) => <Card variant="outlined" key={view?.name} sx={{px: 2, py: 1}}>
                         <Stack direction="row" justifyContent="space-between" alignItems="center">
                             <Typography>{view?.name}</Typography>
                             <Stack direction="row">
